@@ -1,0 +1,87 @@
+package com.inventory.serviceImpl;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.inventory.dto.InventoryDto;
+import com.inventory.exception.InventoryIdNotFoundException;
+import com.inventory.exception.NoInventoryFoundException;
+import com.inventory.model.Inventory;
+import com.inventory.repository.InventoryRepository;
+import com.inventory.service.InventoryService;
+import com.inventory.service.ProductClient;
+@Service
+public class InventoryServiceImpl implements InventoryService{
+	
+	@Autowired
+	private InventoryRepository inventoryrepository;
+
+	@Autowired
+	private ProductClient productClient;
+
+	@Override
+	public List<Inventory> getAllInventories() throws NoInventoryFoundException {
+		List<Inventory> inventories=inventoryrepository.findAll();
+		System.out.println(inventories);
+		if(inventories.isEmpty()) {
+			throw new NoInventoryFoundException("Oops... No inventory is available at the moment.");
+		}
+		List<Inventory> newInventoryList = inventories.stream().map(invt -> {
+			invt.setProducts(productClient.getProductsByInventoryId(invt.getInventoryId()));
+			return invt;
+		}).collect(Collectors.toList());
+		return newInventoryList;
+	}
+
+	@Override
+	public Inventory getInventoryById(Long inventoryId) throws InventoryIdNotFoundException {
+		Inventory inventory=inventoryrepository.findById(inventoryId)
+				.orElseThrow(()->new InventoryIdNotFoundException("Inventory not found with id : "+ inventoryId));
+		inventory.setProducts(productClient.getProductsByInventoryId(inventory.getInventoryId()));
+		return inventory;
+	}
+
+	@Override
+	public Inventory createInventory(InventoryDto inventoryDto) {
+		Inventory inventory = new Inventory();
+		inventory.setCategory(inventoryDto.getCategory());
+		inventory.setLocation(inventoryDto.getLocation());
+		
+		return inventoryrepository.save(inventory);
+	}
+
+	@Override
+	public Inventory updateInventory(Long inventoryId, InventoryDto inventoryDto) throws InventoryIdNotFoundException {
+		Inventory inventory =inventoryrepository.findById(inventoryId)
+				.orElseThrow(()->new InventoryIdNotFoundException("Inventory not found with id : "+ inventoryId));
+		if(inventoryDto.getCategory() != null) inventory.setCategory(inventoryDto.getCategory());
+		if(inventoryDto.getLocation() != null) inventory.setLocation(inventoryDto.getLocation());
+		return inventoryrepository.save(inventory);
+	}
+	
+	@Override
+	public Inventory deleteInventory(Long inventoryId) throws InventoryIdNotFoundException {
+		Inventory inventory = inventoryrepository.findById(inventoryId)
+				.orElseThrow(()->new InventoryIdNotFoundException("Inventory not found with id : "+ inventoryId));
+		inventoryrepository.deleteById(inventoryId);
+		return inventory;
+	}
+	
+	@Override
+	public List<Inventory> getInventoriesByLocation(String location) throws NoInventoryFoundException{
+		
+		List<Inventory> inventoriesList = inventoryrepository.findByLocationIgnoreCase(location);
+		if(inventoriesList.isEmpty()) {
+			throw new NoInventoryFoundException("Oops... No inventory found for the specific location "+location);
+		}
+		List<Inventory> newInventoryList = inventoriesList.stream().map(invt -> {
+			invt.setProducts(productClient.getProductsByInventoryId(invt.getInventoryId()));
+			return invt;
+		}).collect(Collectors.toList());
+		return newInventoryList;
+	}
+
+}

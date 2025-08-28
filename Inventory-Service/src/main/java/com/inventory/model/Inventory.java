@@ -1,0 +1,32 @@
+package com.inventory.model;
+
+import java.util.List;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Entity
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class Inventory {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long inventoryId;
+	@Column(nullable = false)
+	@Size(message = "Category cannot be null. Min char length is 3")
+	private String category;
+	private transient List<Product> products;
+	@Column(nullable = false)
+	@Size(message = "Location cannot be null. Min char length is 3")
+	private String location;
+}

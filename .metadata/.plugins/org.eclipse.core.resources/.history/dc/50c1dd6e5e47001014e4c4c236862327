@@ -1,0 +1,49 @@
+
+package com.inventory.controller;
+
+import com.inventory.model.Inventory;
+import com.inventory.service.InventoryService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/inventory")
+public class InventoryController {
+
+    @Autowired
+    private InventoryService inventoryService;
+
+    // Get all inventory items
+    @GetMapping
+    public ResponseEntity<List<Inventory>> getAllInventories() {
+        return ResponseEntity.ok(inventoryService.getAllInventories());
+    }
+
+    // Get inventory by ID
+    @GetMapping("/{id}")
+    public ResponseEntity<Inventory> getInventoryById(@PathVariable Long id) {
+        return ResponseEntity.ok(inventoryService.getInventoryById(id));
+    }
+
+    // Create a new inventory
+    @PostMapping
+    public ResponseEntity<Inventory> createInventory(@RequestBody Inventory inventory) {
+        return ResponseEntity.ok(inventoryService.createInventory(inventory));
+    }
+
+    // Update an existing inventory
+    @PutMapping("/{id}")
+    public ResponseEntity<Inventory> updateInventory(@PathVariable Long id, @RequestBody Inventory inventory) {
+        return ResponseEntity.ok(inventoryService.updateInventory(id, inventory));
+    }
+
+    // Delete an inventory
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteInventory(@PathVariable Long id) {
+        inventoryService.deleteInventory(id);
+        return ResponseEntity.noContent().build();
+    }
+}

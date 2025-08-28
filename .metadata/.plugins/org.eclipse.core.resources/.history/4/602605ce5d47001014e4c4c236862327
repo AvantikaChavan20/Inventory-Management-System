@@ -1,0 +1,63 @@
+package com.inventory.serviceImpl;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.inventory.model.Inventory;
+import com.inventory.repository.InventoryRepository;
+import com.inventory.service.InventoryService;
+import com.inventory.service.ProductClient;
+@Service
+public class InventoryServiceImpl implements InventoryService{
+	
+	@Autowired
+	private InventoryRepository inventoryrepository;
+
+	@Autowired
+	private ProductClient productClient;
+
+	@Override
+	public List<Inventory> getAllInventories() {
+		// TODO Auto-generated method stub
+		List<Inventory> inventories=inventoryrepository.findAll();
+		List<Inventory> newInventoryList = inventories.stream().map(invt -> {
+			invt.setProducts(productClient.getProductsByInventoryId(invt.getId()));
+			return invt;
+		}).collect(Collectors.toList());
+		return newInventoryList;
+	}
+
+	@Override
+	public Inventory getInventoryById(Long id) {
+		// TODO Auto-generated method stub
+		Inventory inventory=inventoryrepository.findById(id).orElseThrow(()->new RuntimeException("Inventory not found"));
+		inventory.setProducts(productClient.getProductsByInventoryId(inventory.getId()));
+		return inventory;
+	}
+
+	@Override
+	public Inventory createInventory(Inventory inventory) {
+		// TODO Auto-generated method stub
+		return inventoryrepository.save(inventory);
+	}
+
+	@Override
+	public Inventory updateInventory(Long id, Inventory inventory) {
+		// TODO Auto-generated method stub
+		Inventory invt=inventoryrepository.findById(id).orElseThrow(()->new RuntimeException("Inventory not found"));
+		invt.setCategory(inventory.getCategory());
+		invt.setProducts(inventory.getProducts());
+		return inventoryrepository.save(invt);
+	}
+
+	@Override
+	public void deleteInventory(Long id) {
+		// TODO Auto-generated method stub
+		Inventory invt=inventoryrepository.findById(id).orElseThrow(()->new RuntimeException("Inventory not found"));
+		inventoryrepository.delete(invt);
+	}
+
+}

@@ -1,0 +1,40 @@
+package com.user.entity;
+
+import org.hibernate.validator.constraints.UniqueElements;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+
+@Entity
+@Data
+@Table(name = "user")
+public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+    @Column(name = "username", nullable = false, unique = true)
+    private String username;
+    @NotNull(message = "Password cannot be null")
+    @Size(min = 6, message = "Password must be at least 6 characters long")
+    @Pattern(regexp = ".*[A-Z].*", message = "Password must contain at least one uppercase letter")
+    @Pattern(regexp = ".*[a-z].*", message = "Password must contain at least one lowercase letter")
+    @Pattern(regexp = ".*\\d.*", message = "Password must contain at least one digit")
+    @Pattern(regexp = ".*[\\W_].*", message = "Password must contain at least one special character")
+    private String password;
+    @Email
+    private String email;
+    @Pattern(regexp = "^\\d{10}$", message = "The Phone Number Should be of 10 Digits")
+    private String phoneNo;
+    private String role;
+}
