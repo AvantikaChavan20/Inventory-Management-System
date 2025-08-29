@@ -19,56 +19,6 @@ This system follows modern enterprise architecture patterns, ensuring each micro
 
 ---
 
-## 🏗️ Architecture
-
-
-
-```mermaid
-flowchart TB
-  C[Client / Frontend]
-  AG[API Gateway\n(8080)\nJWT validation]
-  EU[Eureka Server\n(8761)]
-
-  subgraph S[Microservices]
-    US[User Service\nAuth/JWT]
-    PS[Product Service]
-    IS[Inventory Service]
-    CS[Cart Service]
-    PAY[Payment Service]
-  end
-
-  subgraph DBs[Per-service Databases]
-    UDB[(User DB)]
-    PDB[(Product DB)]
-    IDB[(Inventory DB)]
-    CDB[(Cart DB)]
-    PAYDB[(Payment DB)]
-  end
-
-  C --> AG
-  AG -. register/discover .-> EU
-  AG --> US
-  AG --> PS
-  AG --> IS
-  AG --> CS
-  AG --> PAY
-
-  CS -. get product info .-> PS
-  IS -. validate product .-> PS
-  PAY -. read total & userId .-> CS
-
-  C -. login .-> AG
-  AG --> US
-  US -. issue JWT .-> C
-
-  US --> UDB
-  PS --> PDB
-  IS --> IDB
-  CS --> CDB
-  PAY --> PAYDB
-```
-
----
 
 ## 📂 Services Breakdown
 
@@ -156,18 +106,6 @@ flowchart TB
 ---
 
 ## 🗄️ ER Diagrams
-
-### System-level ER Diagram
-
-```mermaid
-erDiagram
-  USER ||--o{ CART : "owns"
-  USER ||--o{ PAYMENT : "makes"
-  CART ||--o{ CART_ITEM : "contains"
-  PRODUCT ||--o{ CART_ITEM : "referenced by"
-  INVENTORY ||--o{ PRODUCT : "stocks"
-  CART ||--|| PAYMENT : "checked out by"
-```
 
 ### Per-service ERDs
 
